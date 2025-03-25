@@ -1,31 +1,30 @@
 package studentteacher.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
 @Table(name = "teachers")
 public class Teacher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "teachers")
-    @JsonBackReference // Added here
+    @ManyToMany
+    @JoinTable(
+            name = "student_teacher", // junction table name
+            joinColumns = @JoinColumn(name = "teacher_id"), // teacher column
+            inverseJoinColumns = @JoinColumn(name = "student_id") // student column
+    )
     private Set<Student> students = new HashSet<>();
-
-    // Constructors, Getters and Setters
-    public Teacher() {}
-
-    public Teacher(String name) {
-        this.name = name;
-    }
 
     // Getters and Setters
     public Long getId() {
@@ -50,5 +49,11 @@ public class Teacher {
 
     public void setStudents(Set<Student> students) {
         this.students = students;
+    }
+
+    // Helper method to manage the bidirectional association
+    public void addStudent(Student student) {
+        this.students.add(student);
+        student.getTeachers().add(this);  // Ensure synchronization
     }
 }

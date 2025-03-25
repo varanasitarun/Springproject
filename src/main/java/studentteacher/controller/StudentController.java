@@ -8,26 +8,28 @@ import studentteacher.service.StudentService;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/students")
 public class StudentController {
+
     @Autowired
     private StudentService studentService;
+
     @GetMapping
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
+
+    // Corrected POST endpoint: Removed redundant 'students' in path
     @PostMapping
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        //return null;
-        return ResponseEntity.ok(studentService.saveStudent(student));
+        // Save the student and return with HTTP status CREATED
+        Student createdStudent = studentService.saveStudent(student);
+        return ResponseEntity.status(201).body(createdStudent); // Using 201 for CREATED status
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudent(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
-
-
 }
